@@ -1,23 +1,30 @@
 #!/usr/bin/env bash
-set -e
+set -Eeuo pipefail
 
-# If overrides exist, copy them into the Laravel project
+APP_DIR="/app/backend"
+
+echo "Applying backend overrides..."
 if [ -d "/app/backend-overrides" ]; then
-  echo "Applying backend overrides..."
-  rsync -av --exclude='.env' /app/backend-overrides/ /app/backend/
+  rsync -a --exclude '.env' /app/backend-overrides/ "$APP_DIR"/
 fi
 
-# SQLite DB
-mkdir -p /app/backend/database
-touch /app/backend/database/database.sqlite
+cd "$APP_DIR"
 
-# Env
-if [ ! -f /app/backend/.env ]; then
-  cp /app/backend/.env.example /app/backend/.env
+mkdir -p database
+touch database/database.sqlite
+
+if [ ! -f .env ]; then
+  cp .env.example .env
 fi
 
-# Migrate
-php /app/backend/artisan migrate --force || true
+if ! grep -qE '^APP_KEY=.+$' .env || grep -q '^APP_KEY=$' .env; then
+  php artisan key:generate --force
+fi
 
-# Serve
-php /app/backend/artisan serve --host=0.0.0.0 --port=${APP_PORT:-8000}
+php artisan migrate --force || true
+
+php artisan config:clear >/dev/null 2>&1 || true
+php artisan route:clear  >/dev/null 2>&1 || true
+php artisan view:clear   >/dev/null 2>&1 || true
+
+exec php artisan serve --host=0.0.0.0 --port="${APP_PORT:-8000}"

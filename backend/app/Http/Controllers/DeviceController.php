@@ -1,27 +1,27 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use App\Models\Device;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use App\Models\Device;
 
 class DeviceController extends Controller
 {
     public function index()
     {
-        return response()->json(Device::orderBy('created_at','desc')->get());
+        return response()->json(Device::orderByDesc('id')->get());
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:120',
-            'type' => 'required|string|max:80',
-            'location' => 'required|string|max:120',
-            'status' => 'nullable|in:active,inactive'
+        $data = $request->validate([
+            'name'     => 'required|string|max:255',
+            'type'     => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'status'   => 'required|in:active,inactive,maintenance',
         ]);
-        $device = Device::create($validated);
-        return response()->json($device, Response::HTTP_CREATED);
+        $device = Device::create($data);
+        return response()->json($device, 201);
     }
 
     public function show(Device $device)
@@ -31,19 +31,19 @@ class DeviceController extends Controller
 
     public function update(Request $request, Device $device)
     {
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:120',
-            'type' => 'sometimes|required|string|max:80',
-            'location' => 'sometimes|required|string|max:120',
-            'status' => 'nullable|in:active,inactive'
+        $data = $request->validate([
+            'name'     => 'sometimes|required|string|max:255',
+            'type'     => 'sometimes|required|string|max:255',
+            'location' => 'sometimes|required|string|max:255',
+            'status'   => 'sometimes|required|in:active,inactive,maintenance',
         ]);
-        $device->update($validated);
+        $device->update($data);
         return response()->json($device);
     }
 
     public function destroy(Device $device)
     {
         $device->delete();
-        return response()->json(['message' => 'Deleted']);
+        return response()->noContent();
     }
 }

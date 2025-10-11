@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   backend:
     build:
@@ -6,10 +8,14 @@ services:
     container_name: iot_backend
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend:/app/backend-overrides:ro
     environment:
       - APP_PORT=8000
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_URL=http://127.0.0.1:8000
+    volumes:
+      - ./backend:/app/backend-overrides:ro
+      - ./storage/sqlite/database.sqlite:/app/backend/database/database.sqlite
 
   frontend:
     build:

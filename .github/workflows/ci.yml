@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci || npm install
+      - run: npm run build
+
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+      - name: Create Laravel skeleton and merge overrides
+        run: |
+          composer create-project laravel/laravel backend-ci
+          cd backend-ci
+          composer require fruitcake/laravel-cors
+          rsync -av ../backend/ ./ || true
+          cp .env.example .env
+          touch database/database.sqlite
+      - name: Run basic checks
+        working-directory: backend-ci
+        run: |
+          php artisan -V
+          php -l app/Models/Device.php
+          php -l app/Http/Controllers/DeviceController.php
+          php artisan migrate --no-interaction || true

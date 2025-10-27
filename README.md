@@ -1,15 +1,13 @@
-# IoT Device Inventory – 7CS069/UZ1
+# IoT Device Inventory – Final Assessment (7CS069/UZ1)
 
-Full‑stack prototype using **React (Vite)** + **Laravel 10** with **SQLite** persistence.
+Full-stack web application developed by **Roberto Marini (2544961)** for the **University of Wolverhampton – Web Technologies (7CS069/UZ1)** module.  
+The project integrates **React (Vite)** + **Laravel 10** with **SQLite** persistence, using **Docker Compose** for containerized deployment.
 
 ## Quick Start
 Backend:
 ```bash
 cd backend
-composer create-project laravel/laravel .
-composer require fruitcake/laravel-cors
 cp .env.example .env
-touch database/database.sqlite
 php artisan migrate
 php artisan serve --host=127.0.0.1 --port=8000
 ```
@@ -23,19 +21,29 @@ npm run dev            # http://127.0.0.1:5173
 ```
 
 ## API
+- GET    /api/health
 - GET    /api/devices
 - POST   /api/devices
-- GET    /api/devices/{id}
 - PUT    /api/devices/{id}
 - DELETE /api/devices/{id}
 
 
-## Docker Compose (optional)
+## Docker Compose
 ```bash
 docker compose up --build
 # Frontend: http://127.0.0.1:5173
 # Backend API: http://127.0.0.1:8000/api
+# SQLite persistence: storage/sqlite/database.sqlite
 ```
 
-## GitHub Actions CI
-The workflow builds the frontend and sanity‑checks a Laravel instance by composing a fresh app and overlaying the backend overrides in this repo.
+## Automated Testing
+```bash
+docker exec -it iot_backend php artisan test
+Runs feature tests to verify API availability and JSON response structure (see tests/Feature/DevicesTest.php)
+```
+
+## Performance Optimization
+Frontend and backend performance analyzed using Google Lighthouse, achieving 100/100 in Performance and Accessibility
+
+## Author
+©2025 University of Wolverhampton - Roberto Marini (2544961)

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -14,6 +15,8 @@ use Tests\TestCase;
  */
 class DevicesTest extends TestCase
 {
+    use RefreshDatabase;
+
     /** @test */
     public function health_endpoint_returns_ok_true()
     {
@@ -29,12 +32,14 @@ class DevicesTest extends TestCase
     /** @test */
     public function it_can_list_devices_with_success_status()
     {
+        // run the endpoint
         $response = $this->get('/api/devices');
 
+        // expect OK
         $response->assertStatus(200);
 
-        // We don't assert exact content here because DB may differ,
-        // but we confirm it's valid JSON response.
+        // devices index should always return JSON (array),
+        // even if there are zero rows
         $this->assertIsArray($response->json());
     }
 }

@@ -1,4 +1,4 @@
-# IoT Device Inventory – 7CS069/UZ1 (Formative)
+# IoT Device Inventory – 7CS069/UZ1
 
 Full‑stack prototype using **React (Vite)** + **Laravel 10** with **SQLite** persistence.
 

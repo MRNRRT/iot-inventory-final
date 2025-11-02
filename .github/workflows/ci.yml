@@ -34,9 +34,10 @@ jobs:
         run: |
           composer create-project laravel/laravel backend-ci
 
-      - name: Merge your backend over the skeleton
+      # ⛔️ Do NOT use --delete here; it would remove artisan and vendor files
+      - name: Merge your backend over the skeleton (safe merge)
         run: |
-          rsync -av --delete backend/ backend-ci/ || true
+          rsync -av backend/ backend-ci/ || true
 
       - name: Prepare environment
         working-directory: backend-ci

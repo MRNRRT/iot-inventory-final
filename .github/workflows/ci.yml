@@ -22,23 +22,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
           tools: composer
-      - name: Create Laravel skeleton and merge overrides
+          extensions: sqlite3
+
+      - name: Create Laravel skeleton
         run: |
           composer create-project laravel/laravel backend-ci
-          cd backend-ci
-          composer require fruitcake/laravel-cors
-          rsync -av ../backend/ ./ || true
+
+      - name: Merge your backend over the skeleton
+        run: |
+          rsync -av --delete backend/ backend-ci/ || true
+
+      - name: Prepare environment
+        working-directory: backend-ci
+        run: |
           cp .env.example .env
-          touch database/database.sqlite
+          php artisan key:generate
+          php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"
+          php artisan config:clear
+
+      - name: Install app dependencies
+        working-directory: backend-ci
+        run: |
+          composer install --no-interaction --no-ansi --no-progress
+
       - name: Run basic checks
         working-directory: backend-ci
         run: |
           php artisan -V
           php -l app/Models/Device.php
           php -l app/Http/Controllers/DeviceController.php
-          php artisan migrate --no-interaction || true
+          php artisan migrate --graceful --no-interaction || true
